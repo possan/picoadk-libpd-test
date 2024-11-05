@@ -29,6 +29,9 @@
 #include <pthread.h>
 #include <z_libpd.h>
 #include <z_print_util.h>
+extern "C" {
+#include <z_ringbuffer.h>
+}
 #include "g_canvas.h"
 
 #define USE_DIN_MIDI 0
@@ -370,6 +373,10 @@ canvas 121 146 915 638 adsr 0;\
 #X connect 37 0 35 2;\
   ";
 
+
+	ring_buffer *_inputRingBuffer;  ///< input buffer
+	ring_buffer *_outputRingBuffer; ///< output buffer
+
     int main(void)
     {
         // initialize the hardware
@@ -380,11 +387,18 @@ canvas 121 146 915 638 adsr 0;\
         printf("memory: free heap %ld of %ld\n" ,getFreeHeap(), getTotalHeap());
 
         int srate = 44100;
+        int blksize = libpd_blocksize();
         libpd_set_verbose(1);
         libpd_set_printhook(pdprint);
         libpd_set_noteonhook(pdnoteon);
         libpd_init();
         libpd_init_audio(1, 1, srate);
+        printf("blocksize %d\n", blksize);
+
+        printf("memory: free heap %ld of %ld\n" ,getFreeHeap(), getTotalHeap());
+
+        _inputRingBuffer = rb_create(sizeof(float) * 8 * blksize);
+        _outputRingBuffer = rb_create(sizeof(float) * 8 * blksize);
 
         printf("memory: free heap %ld of %ld\n" ,getFreeHeap(), getTotalHeap());
 
@@ -471,10 +485,24 @@ canvas 121 146 915 638 adsr 0;\
         uint32_t cv2 = adc128_read(2) * 16;
         uint32_t cv3 = adc128_read(3) * 16;
 
-        // this needs to be put in a ring buffer somewhere, and the correct length read out of it.
-        t_float inbuf[64];
-        t_float outbuf[64];
-        libpd_process_float(1, inbuf, outbuf);
+        t_float inbuf[64] = {0,};
+        t_float outbuf[64] = {0, };
+
+        if (_inputRingBuffer && _outputRingBuffer) {
+
+    		uint32_t framesAvailable = (uint32_t)rb_available_to_read(_outputRingBuffer) / (sizeof(float) * 1);
+            if (framesAvailable < 64 ){
+                libpd_process_float(1, inbuf, outbuf);
+                rb_write_to_buffer(_outputRingBuffer, 64 * sizeof(float), (char *)&outbuf);
+            }
+
+    		framesAvailable = (uint32_t)rb_available_to_read(_outputRingBuffer) / (sizeof(float) * 1);
+            if (framesAvailable >= 64 ){
+                rb_read_from_buffer(_outputRingBuffer, (char *)&outbuf, buffer->max_sample_count*sizeof(float));
+            }
+
+            // this needs to be put in a ring buffer somewhere, and the correct length read out of it.
+        }
 
         // We are filling the buffer with 32-bit samples (2 channels)
         for (uint i = 0; i < buffer->max_sample_count; i++)
