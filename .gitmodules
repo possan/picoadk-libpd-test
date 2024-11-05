@@ -4,3 +4,15 @@
 [submodule "lib/vult"]
 	path = lib/vult
 	url = https://github.com/vult-dsp/vult.git
+[submodule "ext/pd/libpd"]
+	path = ext/pd/libpd
+	url = git@github.com:possan/libpd.git
+[submodule "ext/freertos-tcp/FreeRTOS-Plus-TCP"]
+	path = ext/freertos-tcp/FreeRTOS-Plus-TCP
+	url = ssh://git@github.com/FreeRTOS/FreeRTOS-Plus-TCP.git
+[submodule "ext/freertos-posix/Lab-Project-FreeRTOS-POSIX"]
+	path = ext/freertos-posix/Lab-Project-FreeRTOS-POSIX
+	url = ssh://git@github.com/FreeRTOS/Lab-Project-FreeRTOS-POSIX.git
+[submodule "ext/freertos/FreeRTOS-Kernel"]
+	path = ext/freertos/FreeRTOS-Kernel
+	url = ssh://git@github.com/FreeRTOS/FreeRTOS-Kernel.git
