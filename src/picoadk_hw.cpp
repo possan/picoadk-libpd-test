@@ -8,9 +8,11 @@ void picoadk_init()
         sleep_ms(1);
         set_sys_clock_khz(402000, true);
 
+#if USE_USB_MIDI
         // Initialize TinyUSB
         board_init();
         tusb_init();
+#endif
         stdio_init_all();
 
         // set gpio 25 (soft mute) to output and set to 1 (unmute)

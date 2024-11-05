@@ -17,10 +17,12 @@
 #include "hardware/structs/rosc.h"
 #include "helper.h"
 
+#ifdef USE_USB_MIDI
 #if __has_include("bsp/board_api.h")
 #include "bsp/board_api.h"
 #else
 #include "bsp/board.h"
+#endif
 #endif
 
 void picoadk_init();

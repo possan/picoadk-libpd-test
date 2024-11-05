@@ -66,19 +66,19 @@ add_custom_command(
 
 add_executable(main
     vultsrc/dsp.vult
-    src/usb_descriptors.c
+    # src/usb_descriptors.c
     src/main.cpp 
     src/picoadk_hw.cpp
     src/vultin.cpp
-    src/midi_input_usb.cpp
-    src/get_serial.c
+    # src/midi_input_usb.cpp
+    # src/get_serial.c
     ${CMAKE_CURRENT_BINARY_DIR}/vult.cpp)
 
 pico_set_program_name(main "main")
 pico_set_program_version(main "0.1")
 
 pico_enable_stdio_uart(main 1)
-pico_enable_stdio_usb(main 0)
+pico_enable_stdio_usb(main 1)
 
 # Add the standard library to the build
 target_link_libraries(main pico_stdlib)
@@ -99,15 +99,17 @@ target_link_libraries(main
         pico_util_buffer
         pico_multicore
         pico_stdio_uart
-        tinyusb_device
-        tinyusb_board
+        pico_stdio_usb
+        # tinyusb_device
+        # tinyusb_board
 	Audio
-        #Oled
+        # Oled
         FreeRTOS
         )
 
 target_compile_definitions(main PRIVATE
         USE_AUDIO_I2S=1
+        # USE_USB_MIDI=0
 )
 
 target_link_options(main PRIVATE

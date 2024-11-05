@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "project_config.h"
 
+#ifdef USE_USB_MIDI
 #if __has_include("bsp/board_api.h")
 #include "bsp/board_api.h"
 #else
@@ -8,6 +9,8 @@
 #endif
 
 #include "midi_input_usb.h"
+#endif
+
 #include "audio_subsystem.h"
 #include "vult.h"
 #include "picoadk_hw.h"
@@ -27,7 +30,9 @@
 audio_buffer_pool_t *ap;
 Dsp_process_type ctx;
 
+#ifdef USE_USB_MIDI
 MIDIInputUSB usbmidi;
+#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -94,6 +99,7 @@ extern "C"
 #endif
     }
 
+#ifdef USE_USB_MIDI
     // This task processes the USB MIDI input
     void usb_midi_task(void *pvParameters)
     {
@@ -107,7 +113,7 @@ extern "C"
             usbmidi.process();
         }
     }
-
+#endif
     // This task blinks the LEDs on GPIO 2-5
     void blinker_task(void *pvParameters)
     {
@@ -188,7 +194,9 @@ extern "C"
         ap = init_audio();
 
         // Create FreeRTOS Tasks for USB MIDI and printing statistics
+#ifdef USE_USB_MIDI
         xTaskCreate(usb_midi_task, "USBMIDI", 4096, NULL, configMAX_PRIORITIES, NULL);
+#endif
         xTaskCreate(print_task, "TASKLIST", 1024, NULL, configMAX_PRIORITIES - 1, NULL);
         xTaskCreate(blinker_task, "BLINKER", 128, NULL, configMAX_PRIORITIES - 1, NULL);
 #if PLAY_RANDOM_NOTES
