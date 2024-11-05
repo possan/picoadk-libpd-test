@@ -46,7 +46,8 @@
 #define configUSE_TASK_NOTIFICATIONS            1
 #define configTASK_NOTIFICATION_ARRAY_ENTRIES   3
 #define configUSE_MUTEXES                       1
-#define configUSE_RECURSIVE_MUTEXES             0
+#define configUSE_RECURSIVE_MUTEXES             1
+#define configUSE_APPLICATION_TASK_TAG          1
 #define configUSE_COUNTING_SEMAPHORES           1
 #define configQUEUE_REGISTRY_SIZE               10
 #define configUSE_QUEUE_SETS                    0
@@ -60,9 +61,11 @@
                                                             // than the number of bytes in a size_t.
 
 /* Memory allocation related definitions. */
-#define configSUPPORT_STATIC_ALLOCATION         0
-#define configSUPPORT_DYNAMIC_ALLOCATION        1           // Get FreeRTOS to allocation task memory
+#define configSUPPORT_STATIC_ALLOCATION         1
+#define configSUPPORT_DYNAMIC_ALLOCATION        1
+#define configTOTAL_HEAP_SIZE                   (64*1024)
 #define configAPPLICATION_ALLOCATED_HEAP        1
+#define configKERNEL_PROVIDED_STATIC_MEMORY     1
 
 /* Hook function related definitions. */
 #define configUSE_IDLE_HOOK                     0
@@ -107,7 +110,22 @@
 #define INCLUDE_xTaskAbortDelay                 0
 #define INCLUDE_xTaskGetHandle                  0
 #define INCLUDE_xTaskResumeFromISR              1
+#define INCLUDE_xQueueGetMutexHolder            1
 
+#define configUSE_POSIX_ERRNO                   1
 /* A header file that defines trace macro can be included here. */
+
+// #if FREE_RTOS_KERNEL_SMP // set by the RP2040 SMP port of FreeRTOS
+// /* SMP port only */
+// #define configNUM_CORES                         2
+// #define configTICK_CORE                         0
+// #define configRUN_MULTIPLE_PRIORITIES           1
+// #define configUSE_CORE_AFFINITY                 1
+// #endif
+
+// #define configNUM_CORES                         2
+// #define configUSE_PASSIVE_IDLE_HOOK             0
+// #undef configUSE_CORE_AFFINITY
+// #define configUSE_CORE_AFFINITY                 0
 
 #endif /* FREERTOS_CONFIG_H */
