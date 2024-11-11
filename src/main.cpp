@@ -38,7 +38,7 @@ extern "C" {
 #define DEBUG_MIDI 0
 
 // Set to 0 if you want to play notes via USB MIDI
-#define PLAY_RANDOM_NOTES 1
+#define PLAY_RANDOM_NOTES 0
 
 audio_buffer_pool_t *ap;
 Dsp_process_type ctx;
@@ -62,8 +62,8 @@ extern "C"
     volatile long pd_end;
     volatile int i2s_underruns = 0;
     volatile int i2s_counter = 0;
-	ring_buffer *_inputRingBuffer; ///< input buffer
-	ring_buffer *_outputRingBuffer; ///< output buffer
+	ring_buffer *_inputRingBuffer;
+	ring_buffer *_outputRingBuffer;
     int blocksize = 4;
 
 
