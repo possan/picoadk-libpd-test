@@ -118,8 +118,8 @@ int sys_load_lib(t_canvas *canvas, const char *classname) { return (0);}
 void s_inter_newpdinstance( void) {}
 void x_midi_newpdinstance( void) {}
 
-t_symbol *iemgui_raute2dollar(t_symbol *s) {return(s);}
-t_symbol *iemgui_dollar2raute(t_symbol *s) {return(s);}
+// t_symbol *iemgui_raute2dollar(t_symbol *s) {return(s);}
+// t_symbol *iemgui_dollar2raute(t_symbol *s) {return(s);}
 
 void sys_init_fdpoll() {};
 
@@ -823,22 +823,45 @@ static void glob_close(void *dummy, t_symbol *pname)
  }
 
 
+void max_default(t_pd *x, t_symbol *s, int argc, t_atom *argv)
+{
+    int i;
+    char str[80];
+    startpost("%s: unknown message %s ", class_getname(pd_class(x)),
+        s->s_name);
+    for (i = 0; i < argc; i++)
+    {
+        atom_string(argv+i, str, 80);
+        poststring(str);
+    }
+    endpost();
+}
+
+static t_class *maxclass;
+
 void glob_dsp(void *dummy, t_symbol *s, int argc, t_atom *argv);
 
 void glob_init( void)
 {
+    maxclass = class_new(gensym("max"), 0, 0, sizeof(t_pd),
+        CLASS_DEFAULT, A_NULL);
+    class_addanything(maxclass, max_default);
+    pd_bind(&maxclass, gensym("max"));
+
+
     glob_pdobject = class_new(gensym("pd"), 0, 0, sizeof(t_pd),
         CLASS_DEFAULT, A_NULL);
     class_addmethod(glob_pdobject, (t_method)glob_dsp, gensym("dsp"),
         A_GIMME, 0);
     class_addmethod(glob_pdobject, (t_method)glob_foo, gensym("foo"),
         A_DEFFLOAT, 0);
-    class_addmethod(glob_pdobject, (t_method)glob_beginnew, gensym("begin-new"),
-        A_SYMBOL, A_SYMBOL, 0);
+    // class_addmethod(glob_pdobject, (t_method)glob_beginnew, gensym("begin-new"),
+    //     A_SYMBOL, A_SYMBOL, 0);
     class_addmethod(glob_pdobject, (t_method)glob_close, gensym("close"),
         A_SYMBOL, 0);
-    class_addmethod(glob_pdobject, (t_method)glob_endnew, gensym("end-new"),
-        0);
+    // class_addmethod(glob_pdobject, (t_method)glob_endnew, gensym("end-new"),
+    //     0);
+    class_addanything(glob_pdobject, max_default);
     pd_bind(&glob_pdobject, gensym("pd"));
 }
 
@@ -853,8 +876,10 @@ void g_mycanvas_setup(void);
 void g_numbox_setup(void);
 void g_toggle_setup(void);
 void g_vradio_setup(void);
+void g_radio_setup(void);
 void g_vslider_setup(void);
 void g_vumeter_setup(void);
+void g_slider_setup(void);
 /* iemlib */
 void g_io_setup(void);
 void g_scalar_setup(void);
@@ -869,7 +894,7 @@ void x_connective_setup(void);
 void x_time_setup(void);
 void x_arithmetic_setup(void);
 void x_array_setup(void);
-void x_midi_setup(void);
+    void x_midi_setup(void);
 void x_misc_setup(void);
 void x_net_setup(void);
 void x_qlist_setup(void);
@@ -882,7 +907,7 @@ void d_array_setup(void);
 void d_ctl_setup(void);
 void d_dac_setup(void);
 void d_delay_setup(void);
-void d_fft_setup(void);
+    void d_fft_setup(void);
 void d_filter_setup(void);
 void d_global_setup(void);
 void d_math_setup(void);
@@ -904,12 +929,9 @@ void conf_init(void)
     g_template_setup();
     m_pd_setup();
     x_acoustics_setup();
-    x_interface_setup();
     x_connective_setup();
-    x_time_setup();
     x_arithmetic_setup();
     x_array_setup();
-    x_misc_setup();
     x_qlist_setup();
     x_gui_setup();
     x_list_setup();
@@ -922,13 +944,21 @@ void conf_init(void)
     d_osc_setup();
     d_arithmetic_setup();
     d_array_setup();
-    // g_toggle_setup();
     clone_setup();
     d_delay_setup();
     d_filter_setup();
     d_math_setup();
     d_misc_setup();
     expr_setup();
+
+    g_bang_setup();
+    g_toggle_setup();
+    g_numbox_setup();
+    g_slider_setup();
+    g_io_setup();
+    g_mycanvas_setup();
+    g_traversal_setup();
+    g_radio_setup();
 }
 
 void faultHandlerWithExcFrame(struct CortexExcFrame *exc, uint32_t cause, uint32_t extraData, struct CortexPushedRegs *pushedRegs)

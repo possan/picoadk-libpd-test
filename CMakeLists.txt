@@ -80,27 +80,27 @@ set (PDSRC
     ${LIBPD_ROOT}/pure-data/src/d_soundfile.c
     ${LIBPD_ROOT}/pure-data/src/d_ugen.c
 
-    # ${LIBPD_ROOT}/pure-data/src/g_all_guis.c
+    ${LIBPD_ROOT}/pure-data/src/g_all_guis.c
     ${LIBPD_ROOT}/pure-data/src/g_array.c
-    # ${LIBPD_ROOT}/pure-data/src/g_bang.c
+        ${LIBPD_ROOT}/pure-data/src/g_bang.c
     ${LIBPD_ROOT}/pure-data/src/g_canvas.c
     ${LIBPD_ROOT}/pure-data/src/g_clone.c
-    # ${LIBPD_ROOT}/pure-data/src/g_editor_extras.c
-    # ${LIBPD_ROOT}/pure-data/src/g_editor.c
+        # ${LIBPD_ROOT}/pure-data/src/g_editor_extras.c
+        # ${LIBPD_ROOT}/pure-data/src/g_editor.c
     ${LIBPD_ROOT}/pure-data/src/g_graph.c
     ${LIBPD_ROOT}/pure-data/src/g_guiconnect.c
     ${LIBPD_ROOT}/pure-data/src/g_io.c
-    # ${LIBPD_ROOT}/pure-data/src/g_mycanvas.c
-    # ${LIBPD_ROOT}/pure-data/src/g_numbox.c
-    # ${LIBPD_ROOT}/pure-data/src/g_radio.c
+        ${LIBPD_ROOT}/pure-data/src/g_mycanvas.c
+        ${LIBPD_ROOT}/pure-data/src/g_numbox.c
+        ${LIBPD_ROOT}/pure-data/src/g_radio.c
     ${LIBPD_ROOT}/pure-data/src/g_readwrite.c
     ${LIBPD_ROOT}/pure-data/src/g_rtext.c
     ${LIBPD_ROOT}/pure-data/src/g_scalar.c
-    # ${LIBPD_ROOT}/pure-data/src/g_slider.c
+        ${LIBPD_ROOT}/pure-data/src/g_slider.c
     ${LIBPD_ROOT}/pure-data/src/g_template.c
     ${LIBPD_ROOT}/pure-data/src/g_text.c
-    ${LIBPD_ROOT}/pure-data/src/g_toggle.c
-    # ${LIBPD_ROOT}/pure-data/src/g_traversal.c
+        ${LIBPD_ROOT}/pure-data/src/g_toggle.c
+        ${LIBPD_ROOT}/pure-data/src/g_traversal.c
     # ${LIBPD_ROOT}/pure-data/src/g_undo.c
     # ${LIBPD_ROOT}/pure-data/src/g_vumeter.c
 
