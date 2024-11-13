@@ -11,9 +11,11 @@ void picoadk_init()
         #warning "No overclocking will performed, as this is untested on plaftorms other than the RP2040."
         #endif
 
+#if USE_USB_MIDI
         // Initialize TinyUSB
         board_init();
         tusb_init();
+#endif
         stdio_init_all();
 
         // set gpio 25 (soft mute) to output and set to 1 (unmute)

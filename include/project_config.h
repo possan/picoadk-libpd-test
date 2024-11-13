@@ -26,4 +26,7 @@
 #define PIN_POT_0     28
 #define PIN_POT_1     29
 
+#undef SAMPLES_PER_BUFFER
+#define SAMPLES_PER_BUFFER 16
+
 #endif // __PROJECT_CONFIG_H__

@@ -10,3 +10,12 @@
 [submodule "lib/pico-sdk"]
 	path = lib/pico-sdk
 	url = https://github.com/DatanoiseTV/pico-sdk
+[submodule "ext/pd/libpd"]
+	path = ext/pd/libpd
+	url = git@github.com:possan/libpd.git
+[submodule "ext/freertos-tcp/FreeRTOS-Plus-TCP"]
+	path = ext/freertos-tcp/FreeRTOS-Plus-TCP
+	url = ssh://git@github.com/FreeRTOS/FreeRTOS-Plus-TCP.git
+[submodule "ext/freertos-posix/Lab-Project-FreeRTOS-POSIX"]
+	path = ext/freertos-posix/Lab-Project-FreeRTOS-POSIX
+	url = ssh://git@github.com/FreeRTOS/Lab-Project-FreeRTOS-POSIX.git

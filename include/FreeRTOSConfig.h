@@ -41,7 +41,8 @@
 /* Synchronization Related */
 #define configUSE_MUTEXES                       1
 #define configUSE_RECURSIVE_MUTEXES             1
-#define configUSE_APPLICATION_TASK_TAG          0
+// for pthreads wrapper:
+#define configUSE_APPLICATION_TASK_TAG          1
 #define configUSE_COUNTING_SEMAPHORES           1
 #define configQUEUE_REGISTRY_SIZE               8
 #define configUSE_QUEUE_SETS                    1
@@ -56,6 +57,7 @@
 #define configMESSAGE_BUFFER_LENGTH_TYPE        size_t
 
 /* Memory allocation related definitions. */
+// for pthreads wrapper:
 #define configSUPPORT_STATIC_ALLOCATION         0
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
 #define configTOTAL_HEAP_SIZE                   (128*1024)
@@ -69,7 +71,7 @@
 /* Run time and task stats gathering related definitions. */
 #define configGENERATE_RUN_TIME_STATS           0
 #define configUSE_TRACE_FACILITY                1
-#define configUSE_STATS_FORMATTING_FUNCTIONS    0
+#define configUSE_STATS_FORMATTING_FUNCTIONS    1
 
 /* Co-routine related definitions. */
 #define configUSE_CO_ROUTINES                   0
@@ -136,5 +138,18 @@ to exclude the API function. */
 #define configENABLE_FPU                        1
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY    16
 #endif
+
+// #if FREE_RTOS_KERNEL_SMP // set by the RP2040 SMP port of FreeRTOS
+// /* SMP port only */
+// #define configNUM_CORES                         2
+// #define configTICK_CORE                         0
+// #define configRUN_MULTIPLE_PRIORITIES           1
+// #define configUSE_CORE_AFFINITY                 1
+// #endif
+
+// #define configNUM_CORES                         2
+// #define configUSE_PASSIVE_IDLE_HOOK             0
+// #undef configUSE_CORE_AFFINITY
+// #define configUSE_CORE_AFFINITY                 0
 
 #endif /* FREERTOS_CONFIG_H */
