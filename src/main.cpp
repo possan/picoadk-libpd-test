@@ -7,8 +7,8 @@
 #else
 #include "bsp/board.h"
 #endif
-
-#include "midi_input_usb.h"
+#include "tusb.h"
+#include "usb_midi_host.h"
 #endif
 
 #include "audio_subsystem.h"
@@ -42,9 +42,10 @@ extern "C" {
 
 audio_buffer_pool_t *ap;
 Dsp_process_type ctx;
+static uint8_t midi_dev_addr = 0;
 
 #ifdef USE_USB_MIDI
-MIDIInputUSB usbmidi;
+// MIDIInputUSB usbmidi;
 #endif
 
 extern "C" {
@@ -87,56 +88,122 @@ extern "C"
         }
     }
 
-    // MIDI callbacks
-    void note_on_callback(uint8_t note, uint8_t level, uint8_t channel)
-    {
-        if (level > 0)
-        {
-            Dsp_noteOn(ctx, note, level, channel);
-            gpio_put(15, 1);
-#if DEBUG_MIDI
-            printf("note on (ch %d): %d %d\n", channel, note, level);
-#endif
-        }
-        else
-        {
-            Dsp_noteOff(ctx, note, channel);
-            gpio_put(15, 0);
-#if DEBUG_MIDI
-            printf("note off (ch %d): %d %d\n", channel, note, level);
-#endif
-        }
-    }
+//     // MIDI callbacks
+//     void note_on_callback(uint8_t note, uint8_t level, uint8_t channel)
+//     {
+//         if (level > 0)
+//         {
+//             Dsp_noteOn(ctx, note, level, channel);
+//             gpio_put(15, 1);
+// #if DEBUG_MIDI
+//             printf("note on (ch %d): %d %d\n", channel, note, level);
+// #endif
+//         }
+//         else
+//         {
+//             Dsp_noteOff(ctx, note, channel);
+//             gpio_put(15, 0);
+// #if DEBUG_MIDI
+//             printf("note off (ch %d): %d %d\n", channel, note, level);
+// #endif
+//         }
+//     }
 
-    void note_off_callback(uint8_t note, uint8_t level, uint8_t channel)
-    {
-        Dsp_noteOff(ctx, note, channel);
-        gpio_put(15, 0);
-#if DEBUG_MIDI
-        printf("note off (ch %d): %d %d\n", channel, note, level);
-#endif
-    }
+//     void note_off_callback(uint8_t note, uint8_t level, uint8_t channel)
+//     {
+//         Dsp_noteOff(ctx, note, channel);
+//         gpio_put(15, 0);
+// #if DEBUG_MIDI
+//         printf("note off (ch %d): %d %d\n", channel, note, level);
+// #endif
+//     }
 
-    void cc_callback(uint8_t cc, uint8_t value, uint8_t channel)
-    {
-        Dsp_controlChange(ctx, cc, value, channel);
-#if DEBUG_MIDI
-        printf("cc (ch %d): %d %d\n", channel, cc, value);
-#endif
+//     void cc_callback(uint8_t cc, uint8_t value, uint8_t channel)
+//     {
+//         Dsp_controlChange(ctx, cc, value, channel);
+// #if DEBUG_MIDI
+//         printf("cc (ch %d): %d %d\n", channel, cc, value);
+// #endif
+//     }
+
+//--------------------------------------------------------------------+
+// TinyUSB Callbacks
+//--------------------------------------------------------------------+
+
+// Invoked when device with hid interface is mounted
+// Report descriptor is also available for use. tuh_hid_parse_report_descriptor()
+// can be used to parse common/simple enough descriptor.
+// Note: if report descriptor length > CFG_TUH_ENUMERATION_BUFSIZE, it will be skipped
+// therefore report_desc = NULL, desc_len = 0
+void tuh_midi_mount_cb(uint8_t dev_addr, uint8_t in_ep, uint8_t out_ep, uint8_t num_cables_rx, uint16_t num_cables_tx)
+{
+  printf("MIDI device address = %u, IN endpoint %u has %u cables, OUT endpoint %u has %u cables\r\n",
+      dev_addr, in_ep & 0xf, num_cables_rx, out_ep & 0xf, num_cables_tx);
+
+  if (midi_dev_addr == 0) {
+    // then no MIDI device is currently connected
+    midi_dev_addr = dev_addr;
+  }
+  else {
+    printf("A different USB MIDI Device is already connected.\r\nOnly one device at a time is supported in this program\r\nDevice is disabled\r\n");
+  }
+}
+
+// Invoked when device with hid interface is un-mounted
+void tuh_midi_umount_cb(uint8_t dev_addr, uint8_t instance)
+{
+  if (dev_addr == midi_dev_addr) {
+    midi_dev_addr = 0;
+    printf("MIDI device address = %d, instance = %d is unmounted\r\n", dev_addr, instance);
+  }
+  else {
+    printf("Unused MIDI device address = %d, instance = %d is unmounted\r\n", dev_addr, instance);
+  }
+}
+
+void tuh_midi_rx_cb(uint8_t dev_addr, uint32_t num_packets)
+{
+  if (midi_dev_addr == dev_addr) {
+    if (num_packets != 0) {
+      gpio_put(15, 1);
+      uint8_t cable_num;
+      uint8_t buffer[48];
+      while (1) {
+        uint32_t bytes_read = tuh_midi_stream_read(dev_addr, &cable_num, buffer, sizeof(buffer));
+        if (bytes_read == 0)
+          return;
+        printf("MIDI RX Cable #%u:", cable_num);
+        for (uint32_t idx = 0; idx < bytes_read; idx++) {
+          printf("%02x ", buffer[idx]);
+        }
+        printf("\r\n");
+      }
+
+      vTaskDelay(pdMS_TO_TICKS(50));
+      gpio_put(15, 0);
+      
     }
+  }
+}
+
+void tuh_midi_tx_cb(uint8_t dev_addr)
+{
+    (void)dev_addr;
+}
 
 #ifdef USE_USB_MIDI
     // This task processes the USB MIDI input
     void usb_midi_task(void *pvParameters)
     {
-        usbmidi.setCCCallback(cc_callback);
-        usbmidi.setNoteOnCallback(note_on_callback);
-        usbmidi.setNoteOffCallback(note_off_callback);
+        // usbmidi.setCCCallback(cc_callback);
+        // usbmidi.setNoteOnCallback(note_on_callback);
+        // usbmidi.setNoteOffCallback(note_off_callback);
 
         while (1)
         {
-            tud_task();
-            usbmidi.process();
+            tuh_task();
+            bool connected = midi_dev_addr != 0 && tuh_midi_configured(midi_dev_addr);
+            vTaskDelay(pdMS_TO_TICKS(1));
         }
     }
 #endif
@@ -153,10 +220,10 @@ extern "C"
         while (1)
         {
             // chase leds on gpio 2-5
-            for (int i = 2; i < 6; i++)
+            for (int i = 2; i < 4; i++)
             {
                 gpio_put(i, 1);
-                vTaskDelay(pdMS_TO_TICKS(100));
+                vTaskDelay(pdMS_TO_TICKS(500));
                 gpio_put(i, 0);
             }
         }
@@ -192,9 +259,9 @@ extern "C"
                 {
                     if (!restArray[j])
                     {
-                        note_on_callback(noteArray[j], velocityArray[j], 0);
+                        // note_on_callback(noteArray[j], velocityArray[j], 0);
                         vTaskDelay(pdMS_TO_TICKS(noteInterval));
-                        note_off_callback(noteArray[j], velocityArray[j], 0);
+                        // note_off_callback(noteArray[j], velocityArray[j], 0);
                         vTaskDelay(pdMS_TO_TICKS(noteInterval));
                     }
                     else
@@ -576,7 +643,7 @@ static const char westcoastpatchfile[] =
 
         // Create FreeRTOS Tasks for USB MIDI and printing statistics
 #ifdef USE_USB_MIDI
-        xTaskCreate(usb_midi_task, "USBMIDI", 4096, NULL, configMAX_PRIORITIES, NULL);
+        xTaskCreate(usb_midi_task, "USBMIDI", 4096, NULL, configMAX_PRIORITIES - 1, NULL);
 #endif
         xTaskCreate(print_task, "TASKLIST", 1024, NULL, configMAX_PRIORITIES - 1, NULL);
         xTaskCreate(blinker_task, "BLINKER", 128, NULL, configMAX_PRIORITIES - 1, NULL);
@@ -591,8 +658,6 @@ static const char westcoastpatchfile[] =
         // Idle loop.
         while (1)
         {
-            ;
-            ;
         }
     }
 

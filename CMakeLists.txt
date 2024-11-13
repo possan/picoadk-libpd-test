@@ -17,6 +17,7 @@ set(FREERTOS_SRC_DIRECTORY "${PICO_SDK_PATH}/lib/tinyusb/lib/FreeRTOS-Kernel")
 set(LIBPD_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/pd/libpd)
 set(FREERTOS_POSIX_PORT_PATH ${CMAKE_CURRENT_LIST_DIR}/ext/freertos-posix/)
 set(FREERTOS_POSIX_REPO_PATH ${CMAKE_CURRENT_LIST_DIR}/ext/freertos-posix/Lab-Project-FreeRTOS-POSIX)
+set(USB_MIDI_HOST_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/usb_midi_host)
 
 # include(${FREERTOS_POSIX_PATH}/freertos-posix-import.cmake)
 
@@ -171,6 +172,8 @@ project(main C CXX ASM)
 pico_sdk_init()
 
 include_directories(
+        ${USB_MIDI_HOST_ROOT}/
+
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_BINARY_DIR}
         "."
@@ -207,17 +210,17 @@ add_custom_command(
 
 add_executable(main
     vultsrc/dsp.vult
-    src/usb_descriptors.c
     src/main.cpp
     src/picoadk_hw.cpp
     src/vultin.cpp
-    src/midi_input_usb.cpp
     src/get_serial.c
     src/espd.c
     src/freertos_port.c
     src/m0FaultDispatch.c
     ${PDSRC}
     ${CMAKE_CURRENT_BINARY_DIR}/vult.cpp
+    ${USB_MIDI_HOST_ROOT}/usb_midi_host_app_driver.c
+    ${USB_MIDI_HOST_ROOT}/usb_midi_host.c
 )
 
 pico_set_program_name(main "main")
@@ -247,7 +250,8 @@ target_link_libraries(main
         pico_multicore
         pico_stdio_uart
         # pico_stdio_usb
-        tinyusb_device
+        # tinyusb_device
+        tinyusb_host
         tinyusb_board
 	    Audio
         FreeRTOS
